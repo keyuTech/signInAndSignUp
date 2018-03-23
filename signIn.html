@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <title>登录/注册</title>
+    <style>
+        * {
+            font-size: 16px;
+            padding: 0px;
+            margin: 0px;
+            box-sizing: border-box;
+        }
+
+        html,
+        body,
+        main {
+            height: 100%;
+        }
+
+        a {
+            text-decoration: none;
+            color: #000;
+        }
+
+        main {
+            background: url(http://pic.5442.com/2012/0924/05/57.jpg) center no-repeat;
+            background-size: cover;
+        }
+
+        header {
+            position: absolute;
+            width: 100%;
+        }
+
+        header a {
+            float: right;
+            margin-top: 20px;
+            margin-right: 20px;
+            font-size: 30px;
+        }
+
+        .none {
+            display: none;
+        }
+
+        .show {
+            display: block;
+        }
+
+        .flip-modal-login,
+        .flip-modal-register {
+            width: 500px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        .flip-modal {
+            margin: 20px;
+            position: relative;
+            text-align: center;
+        }
+
+        .close {
+            position: absolute;
+            right: 10px;
+        }
+
+        .switch {
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .switch a {
+            font-size: 20px;
+            margin: 0 10px;
+            padding: 5px;
+        }
+
+        .switch .active {
+            border-bottom: 3px solid #000;
+            font-weight: bold;
+        }
+
+        .modal .input-area input[type=submit] {
+            height: 2em;
+            padding: 5px 10px;
+            border: none;
+            background-color: #fff;
+            box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.5);
+            outline: none;
+        }
+
+        .input-area {
+            position: relative;
+            margin: 10px;
+        }
+
+        .input-area .fa {
+            position: absolute;
+            left: 13px;
+            top: 13px;
+        }
+
+        .modal .input-area input[type=text],
+        .modal .input-area input[type=password] {
+            width: 100%;
+            padding: 10px 10px 10px 40px;
+            outline: none;
+        }
+
+        .modal.login .flip-modal-login,
+        .modal.register .flip-modal-register {
+            transform: translate(-50%, -50%) rotateY(0deg);
+            backface-visibility: hidden;
+            transition: all 1s;
+        }
+
+        .modal.login .flip-modal-register,
+        .modal.register .flip-modal-login {
+            transform: translate(-50%, -50%) rotateY(180deg);
+            backface-visibility: hidden;
+            transition: all 1s;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="" class="user">
+            <i class="fa fa-user-circle"></i>
+        </a>
+    </header>
+    <main>
+        <div class="modal login none">
+            <div class="flip-modal-login">
+                <div class="flip-modal modal-login">
+                    <a class="close" href="">
+                        <i class="fa fa-window-close-o"></i>
+                    </a>
+                    <div class="switch">
+                        <a href="" class="switch-login active">登录</a>
+                        <a href="" class="switch-register">注册</a>
+                    </div>
+                    <p class="message">用户名需输入6-12个字符，包括字母、数字、下划线</p>
+                    <form action="#" method="POST">
+                        <div class="input-area">
+                            <i class="fa fa-user-o"></i>
+                            <input type="text" placeholder="用户名" name="userName">
+                        </div>
+                        <div class="input-area">
+                            <i class="fa fa-lock"></i>
+                            <input type="password" placeholder="密码" name="password">
+                        </div>
+                        <div class="input-area">
+                            <input type="submit" value="登录">
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="flip-modal-register">
+                <div class="flip-modal modal-register">
+                    <a class="close" href="">
+                        <i class="fa fa-window-close-o"></i>
+                    </a>
+                    <div class="switch">
+                        <a href="" class="switch-login">登录</a>
+                        <a href="" class="switch-register active">注册</a>
+                    </div>
+                    <p class="message">用户名需输入6-12个字符，包括字母、数字、下划线</p>
+                    <form id="register">
+                        <div class="input-area">
+                            <i class="fa fa-user-o"></i>
+                            <input type="text" placeholder="请输入用户名" name="userName">
+                        </div>
+                        <div class="input-area">
+                            <i class="fa fa-lock"></i>
+                            <input type="password" placeholder="请输入密码" name="password">
+                        </div>
+                        <div class="input-area">
+                            <i class="fa fa-lock"></i>
+                            <input type="password" placeholder="再次输入密码" name="passwordConfirm">
+                        </div>
+                        <div class="input-area">
+                            <input type="submit" value="注册" name="register">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        Copyright by
+        <a href="https://github.com/">@WKY</a>
+    </footer>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        let modal = document.querySelector('.modal')
+        $('header .user').on('click', (e) => {
+            e.preventDefault()
+            modal.style.display = 'block'
+        })
+        $('.close').on('click', (e) => {
+            e.preventDefault()
+            modal.style.display = 'none'
+        })
+
+        $('.switch').on('click', function (e) {
+            e.preventDefault()
+            if (e.target.classList.contains('switch-login')) {
+                $(modal).removeClass('register')
+                $(modal).addClass('login')
+            }
+            if (e.target.classList.contains('switch-register')) {
+                $(modal).removeClass('login')
+                $(modal).addClass('register')
+            }
+        })
+
+        $('#register').submit(function (e) {
+            e.preventDefault()
+            let hash = {}
+            let name = ['userName', 'password', 'passwordConfirm']
+            name.forEach((key) => {
+                let value = $('#register').find(`[name=${key}]`).val()
+                hash[key] = value
+            })
+            $.post('/signIn', hash).then(() => {
+                console.log('success')
+            }, () => {
+                alert()
+            })
+        })
+
+
+    </script>
+</body>
+
+</html>

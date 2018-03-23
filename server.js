@@ -26,11 +26,34 @@ var server = http.createServer(function(request, response){
     response.setHeader('Content-Type', 'text/html;charset=utf-8')
     response.write('哈哈哈')
     response.end()
-  }else if(path === '/getmsg'){
+  }else if(path === '/signIn' && method === 'GET'){
+    let string = fs.readFileSync('./signIn.html', 'utf8')
     response.statusCode = 200
-    response.setHeader('Content-type', 'application/javascript')
-    response.write(`${query.callback}.call(undefined, '得到jack.com:8002的信息')`)
+    response.setHeader('Content-Type', 'text/html;charset=utf-8')
+    response.write(string)
     response.end()
+  }else if(path === '/signIn' && method === 'POST'){
+    readBody(request).then((body)=>{
+      let strings = body.split('&')
+      let hash = {}
+      strings.forEach((string)=>{
+        let parts = string.split('=')
+        let key = parts[0]
+        let value = parts[1]
+        hash[key] = value
+      })
+      let {email, password, passwordConfirm} = hash
+      if(email.indexOf('@') === -1){
+        response.statusCode = 400
+        response.write('email id bad')
+      }else if(password !== passwordConfirm){
+        response.statusCode = 400
+        response.write('password not match')
+      }else{
+        response.statusCode = 200
+      }
+      response.end()
+    })
   }else{
     response.statusCode = 404
     response.setHeader('Content-Type', 'text/html;charset=utf-8')
@@ -40,6 +63,17 @@ var server = http.createServer(function(request, response){
 
   /******** 代码结束，下面不要看 ************/
 })
+function readBody(request){
+  return new Promise((resolve, reject)=>{
+    let body = []
+    request.on('data', (chunk)=>{
+      body.push(chunk)
+    }).on('end', ()=>{
+      body = Buffer.concat(body).toString()
+      resolve(body)
+    })
+  })
+}
 
 server.listen(port)
 console.log('监听 ' + port + ' 成功\n请用在空中转体720度然后用电饭煲打开 http://localhost:' + port)

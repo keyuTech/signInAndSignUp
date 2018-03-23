@@ -4,42 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>frank.com:8001</title>
+  <title>Sign-in</title>
 </head>
 <body>
-  <button id="myButton">点我获取信息</button>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script>
-    button.addEventListener('click', function(e){
-      
-      //原生JS
-
-      // let script = document.createElement('script')
-      // script.src = 'http://jack.com:8002?callback=' + functionName
-      // document.body.appendChild(script)
-      // let functionName = 'wky' + parseInt(Math.random()*1000000, 10)
-      // window[functionName] = function(result){
-      //   alert(result)
-      // }
-      // script.onload = function(e){
-      //   e.currentTarget.remove()
-      // }
-      // script.onerror = function(e){
-      //   e.currentTarget.remove()
-      // }
-
-
-      jQuery方法
-      $.ajax({
-        url: "http://jack.com:8002",
-        jsonp: "callback",
-        dataType: "jsonp",
-        success: function( response ) {
-            alert( response )
-        }
-      })
-    })
-  </script>
+  <h1>hello world</h1>
 </body>
 </html>
