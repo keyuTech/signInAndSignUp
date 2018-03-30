@@ -19,7 +19,7 @@ var server = http.createServer(function(request, response){
 
   /******** 从这里开始看，上面不要看 ************/
 
-  console.log('方方说：含查询字符串的路径\n' + pathWithQuery)
+  console.log('含查询字符串的路径\n' + pathWithQuery)
 
   if(path === '/'){
     response.statusCode = 200
@@ -42,15 +42,26 @@ var server = http.createServer(function(request, response){
         let value = parts[1]
         hash[key] = value
       })
-      let {email, password, passwordConfirm} = hash
-      if(email.indexOf('@') === -1){
+      let {userName, password, passwordConfirm} = hash
+      if(userName.length > 12 || userName.length < 6){
         response.statusCode = 400
-        response.write('email id bad')
+        response.setHeader('Content-Type', 'application/json;charset=utf-8')
+        response.write(`{
+          "errors": {
+            "userName": "invalid"
+          }
+        }`)
       }else if(password !== passwordConfirm){
         response.statusCode = 400
-        response.write('password not match')
+        response.setHeader('Content-Type', 'application/json;charset=utf-8')
+        response.write(`{
+          "errors": {
+            "password": "invalid"
+          }
+        }`)
       }else{
         response.statusCode = 200
+        response.write('注册成功')
       }
       response.end()
     })

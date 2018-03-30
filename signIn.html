@@ -67,7 +67,9 @@
             position: relative;
             text-align: center;
         }
-
+        p.message {
+            margin-bottom: 20px;
+        }
         .close {
             position: absolute;
             right: 10px;
@@ -88,8 +90,11 @@
             border-bottom: 3px solid #000;
             font-weight: bold;
         }
-
-        .modal .input-area input[type=submit] {
+        span.error {
+            font-size: 14px;
+            color: red;
+        }
+        .modal .submit-area input {
             height: 2em;
             padding: 5px 10px;
             border: none;
@@ -101,6 +106,7 @@
         .input-area {
             position: relative;
             margin: 10px;
+            min-height: 62px;
         }
 
         .input-area .fa {
@@ -139,7 +145,7 @@
         </a>
     </header>
     <main>
-        <div class="modal login none">
+        <div class="modal login">
             <div class="flip-modal-login">
                 <div class="flip-modal modal-login">
                     <a class="close" href="">
@@ -159,7 +165,7 @@
                             <i class="fa fa-lock"></i>
                             <input type="password" placeholder="密码" name="password">
                         </div>
-                        <div class="input-area">
+                        <div class="submit-area">
                             <input type="submit" value="登录">
                         </div>
                     </form>
@@ -179,16 +185,19 @@
                         <div class="input-area">
                             <i class="fa fa-user-o"></i>
                             <input type="text" placeholder="请输入用户名" name="userName">
+                            <span class="error"></span>
                         </div>
                         <div class="input-area">
                             <i class="fa fa-lock"></i>
                             <input type="password" placeholder="请输入密码" name="password">
+                            <span class="error"></span>
                         </div>
                         <div class="input-area">
                             <i class="fa fa-lock"></i>
                             <input type="password" placeholder="再次输入密码" name="passwordConfirm">
+                            <span class="error"></span>
                         </div>
-                        <div class="input-area">
+                        <div class="submit-area">
                             <input type="submit" value="注册" name="register">
                         </div>
                     </form>
@@ -226,16 +235,37 @@
 
         $('#register').submit(function (e) {
             e.preventDefault()
+            let $form = $('#register')
+            $form.find('.error').text('')
             let hash = {}
             let name = ['userName', 'password', 'passwordConfirm']
             name.forEach((key) => {
-                let value = $('#register').find(`[name=${key}]`).val()
+                let value = $form.find(`[name=${key}]`).val()
                 hash[key] = value
             })
-            $.post('/signIn', hash).then(() => {
-                console.log('success')
-            }, () => {
-                alert()
+            if(hash['userName'] === ''){
+                $form.find('[name="userName"]').siblings('.error').text('请输入用户名')
+                return
+            }else if(hash['password'] === ''){
+                $form.find('[name="password"]').siblings('.error').text('请输入密码')
+                return
+            }else if(hash['passwordConfirm'] === ''){
+                $form.find('[name="passwordConfirm"]').siblings('.error').text('请确认密码')
+                return
+            }
+            $.post('/signIn', hash).then((response) => {
+                alert('success')
+                console.log(response)
+            }, (request) => {
+                console.log(request.responseJSON)
+                let {errors} = request.responseJSON
+                console.log(2)
+                console.log(errors)
+                if(errors.userName && errors.userName === 'invalid'){
+                    $form.find('[name="userName"]').siblings('.error').text('用户名长度不符')
+                }else if(errors.password && errors.password === 'invalid'){
+                    $form.find('[name="passwordConfirm"]').siblings('.error').text('与密码不符')
+                }
             })
         })
 
