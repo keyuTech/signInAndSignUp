@@ -19,8 +19,6 @@ var server = http.createServer(function(request, response){
 
   /******** 从这里开始看，上面不要看 ************/
 
-  console.log('含查询字符串的路径\n' + pathWithQuery)
-
   if(path === '/'){
     response.statusCode = 200
     response.setHeader('Content-Type', 'text/html;charset=utf-8')
@@ -61,7 +59,29 @@ var server = http.createServer(function(request, response){
         }`)
       }else{
         response.statusCode = 200
-        response.write('注册成功')
+        let users = fs.readFileSync('./db/users.json', 'utf8')
+        users = JSON.parse(users)
+        let inUse = false
+        for(let i = 0; i < users.length; i++){
+          if(users[i].userName === userName){
+            inUse = true
+            break;
+          }
+        }
+        if(inUse){
+          response.statusCode = 400
+          response.setHeader('Content-Type', 'application/json;charset=utf-8')
+          response.write(`{
+            "errors": {
+              "userName": "inuse"
+            }
+          }`)
+        }else{
+          users.push({userName: userName, password: password})
+          let usersString = JSON.stringify(users)
+          fs.writeFileSync('./db/users.json', usersString)
+          response.write('注册成功')
+        }
       }
       response.end()
     })

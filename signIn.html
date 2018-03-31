@@ -252,6 +252,9 @@
             }else if(hash['passwordConfirm'] === ''){
                 $form.find('[name="passwordConfirm"]').siblings('.error').text('请确认密码')
                 return
+            }else if(hash['passwordConfirm'] !== hash['password']){
+                $form.find('[name="passwordConfirm"]').siblings('.error').text('密码不匹配')
+                return
             }
             $.post('/signIn', hash).then((response) => {
                 alert('success')
@@ -263,6 +266,8 @@
                 console.log(errors)
                 if(errors.userName && errors.userName === 'invalid'){
                     $form.find('[name="userName"]').siblings('.error').text('用户名长度不符')
+                }else if(errors.userName && errors.userName === 'inuse'){
+                    $form.find('[name="userName"]').siblings('.error').text('此用户名已被占用')
                 }else if(errors.password && errors.password === 'invalid'){
                     $form.find('[name="passwordConfirm"]').siblings('.error').text('与密码不符')
                 }
