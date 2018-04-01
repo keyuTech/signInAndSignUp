@@ -21,16 +21,92 @@ var server = http.createServer(function(request, response){
 
   if(path === '/'){
     response.statusCode = 200
+    let string = fs.readFileSync('./index.html', 'utf8')
+    let users = fs.readFileSync('./db/users.json')
+    users = JSON.parse(users)
+    let cookies = request.headers.cookie.split('; ')
+    let hash = {}
+    for(let i = 0; i < cookies.length; i++){
+      let cookiePart = cookies[i].split('=')
+      let key = cookiePart[0]
+      let value = cookiePart[1]
+      hash[key] = value
+    }
+    let userName = hash.logIn_userName
+    let foundUser
+    for(let i = 0; i < users.length; i++){
+      if(users[i].userName === userName){
+        foundUser = users[i]
+        break
+      }
+    }
+    if(foundUser){
+      string = string.replace('__userName__', foundUser.userName)
+    }else{
+      string = string.replace('__userName__', '用户名不存在')
+    }
     response.setHeader('Content-Type', 'text/html;charset=utf-8')
-    response.write('哈哈哈')
+    response.write(string)
     response.end()
   }else if(path === '/signIn' && method === 'GET'){
-    let string = fs.readFileSync('./signIn.html', 'utf8')
+    response.statusCode = 200
+    response.setHeader('Content-Type', 'text/html;charset=utf-8')
+    response.write('signIn')
+    response.end()
+  }else if(path === '/signIn' && method === 'POST'){
+    readBody(request).then((body)=>{
+      let strings = body.split('&')
+      let hash = {}
+      strings.forEach((string)=>{
+        let parts = string.split('=')
+        let key = parts[0]
+        let value = parts[1]
+        hash[key] = value
+      })
+      let {userName, password} = hash
+      let users = fs.readFileSync('./db/users.json', 'utf8')
+      users = JSON.parse(users)
+      let foundUser = false
+      let foundPassword = false
+      for(let i = 0; i < users.length; i++){
+        if(users[i].userName === userName && users[i].password === password){
+          foundUser = true
+          foundPassword = true
+        }else if(users[i].userName !== userName && users[i].password === password){
+          foundPassword = true
+        }else if(users[i].userName === userName && users[i].password !== password){
+          foundUser = true
+        }
+      }
+      if(foundUser === true && foundPassword === true){
+        response.setHeader('Set-Cookie', `logIn_userName = ${userName}`)
+        response.statusCode = 200
+      }else if(foundUser === false){
+        response.setHeader('Content-Type', 'application/json;charset=utf-8')
+        response.statusCode = 401
+        response.write(`{
+          "errors": {
+            "userName": "invalid"
+          }
+        }`)
+      }else if(foundPassword === false){
+        response.setHeader('Content-Type', 'application/json;charset=utf-8')
+        response.statusCode = 401
+        response.write(`{
+          "errors": {
+            "password": "invalid"
+          }
+        }`)
+      }
+      response.end()
+    })
+  }else if(path === '/signUp' && method === 'GET'){
+    let string = fs.readFileSync('./signUp.html', 'utf8')
     response.statusCode = 200
     response.setHeader('Content-Type', 'text/html;charset=utf-8')
     response.write(string)
     response.end()
-  }else if(path === '/signIn' && method === 'POST'){
+  }else if(path === '/signUp' && method === 'POST'){
     readBody(request).then((body)=>{
       let strings = body.split('&')
       let hash = {}
@@ -80,7 +156,7 @@ var server = http.createServer(function(request, response){
           users.push({userName: userName, password: password})
           let usersString = JSON.stringify(users)
           fs.writeFileSync('./db/users.json', usersString)
-          response.write('注册成功')
+          response.write('signIn')
         }
       }
       response.end()

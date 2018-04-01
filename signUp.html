@@ -114,7 +114,16 @@
             left: 13px;
             top: 13px;
         }
-
+        .submit-area {
+            min-height: 50px;
+        }
+        .submit-area input {
+            margin-bottom: 10px;
+        }
+        .submit-area .success_message {
+            font-size: 14px;
+            color: green;
+        }
         .modal .input-area input[type=text],
         .modal .input-area input[type=password] {
             width: 100%;
@@ -156,14 +165,16 @@
                         <a href="" class="switch-register">注册</a>
                     </div>
                     <p class="message">用户名需输入6-12个字符，包括字母、数字、下划线</p>
-                    <form action="#" method="POST">
+                    <form id="login">
                         <div class="input-area">
                             <i class="fa fa-user-o"></i>
                             <input type="text" placeholder="用户名" name="userName">
+                            <span class="error"></span>
                         </div>
                         <div class="input-area">
                             <i class="fa fa-lock"></i>
                             <input type="password" placeholder="密码" name="password">
+                            <span class="error"></span>
                         </div>
                         <div class="submit-area">
                             <input type="submit" value="登录">
@@ -199,6 +210,7 @@
                         </div>
                         <div class="submit-area">
                             <input type="submit" value="注册" name="register">
+                            <p class="success_message"></p>
                         </div>
                     </form>
                 </div>
@@ -256,14 +268,15 @@
                 $form.find('[name="passwordConfirm"]').siblings('.error').text('密码不匹配')
                 return
             }
-            $.post('/signIn', hash).then((response) => {
-                alert('success')
-                console.log(response)
+            $.post('/signUp', hash).then((response) => {
+                if(response === 'signIn'){
+                    $form.find('.success_message').text('注册成功，3秒后跳转登录')
+                    setTimeout(()=>{
+                        $('.modal').addClass('login').removeClass('register')
+                    }, 3000) 
+                }
             }, (request) => {
-                console.log(request.responseJSON)
                 let {errors} = request.responseJSON
-                console.log(2)
-                console.log(errors)
                 if(errors.userName && errors.userName === 'invalid'){
                     $form.find('[name="userName"]').siblings('.error').text('用户名长度不符')
                 }else if(errors.userName && errors.userName === 'inuse'){
@@ -273,7 +286,35 @@
                 }
             })
         })
-
+        $('#login').submit(function (e) {
+            e.preventDefault()
+            let $form = $('#login')
+            $form.find('.error').text('')
+            let hash = {}
+            let name = ['userName', 'password']
+            name.forEach((key) => {
+                let value = $form.find(`[name=${key}]`).val()
+                hash[key] = value
+            })
+            if(hash['userName'] === ''){
+                $form.find('[name="userName"]').siblings('.error').text('请输入用户名')
+                return
+            }else if(hash['password'] === ''){
+                $form.find('[name="password"]').siblings('.error').text('请输入密码')
+                return
+            }
+            $.post('/signIn', hash).then((response) => {
+                window.location.href = '/'
+            }, (request) => {
+                console.log(request.responseJSON)
+                let {errors} = request.responseJSON
+                if(errors.userName && errors.userName === 'invalid'){
+                    $form.find('[name="userName"]').siblings('.error').text('用户名不存在')
+                }else if(errors.password && errors.password === 'invalid'){
+                    $form.find('[name="password"]').siblings('.error').text('密码错误')
+                }
+            })
+        })
 
     </script>
 </body>
