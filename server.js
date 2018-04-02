@@ -1,21 +1,22 @@
-var http = require('http')
-var fs = require('fs')
-var url = require('url')
-var port = process.argv[2]
+let http = require('http')
+let fs = require('fs')
+let url = require('url')
+let port = process.argv[2]
+let sessions = {}
 
 if(!port){
   console.log('请指定端口号好不啦？\nnode server.js 8888 这样不会吗？')
   process.exit(1)
 }
 
-var server = http.createServer(function(request, response){
-  var parsedUrl = url.parse(request.url, true)
-  var pathWithQuery = request.url 
-  var queryString = ''
+let server = http.createServer(function(request, response){
+  let parsedUrl = url.parse(request.url, true)
+  let pathWithQuery = request.url 
+  let queryString = ''
   if(pathWithQuery.indexOf('?') >= 0){ queryString = pathWithQuery.substring(pathWithQuery.indexOf('?')) }
-  var path = parsedUrl.pathname
-  var query = parsedUrl.query
-  var method = request.method
+  let path = parsedUrl.pathname
+  let query = parsedUrl.query
+  let method = request.method
 
   /******** 从这里开始看，上面不要看 ************/
 
@@ -24,7 +25,10 @@ var server = http.createServer(function(request, response){
     let string = fs.readFileSync('./index.html', 'utf8')
     let users = fs.readFileSync('./db/users.json')
     users = JSON.parse(users)
-    let cookies = request.headers.cookie.split('; ')
+    let cookies = ''
+    if(request.headers.cookie){
+      cookies = request.headers.cookie.split('; ')
+    }
     let hash = {}
     for(let i = 0; i < cookies.length; i++){
       let cookiePart = cookies[i].split('=')
@@ -32,7 +36,11 @@ var server = http.createServer(function(request, response){
       let value = cookiePart[1]
       hash[key] = value
     }
-    let userName = hash.logIn_userName
+    let mySessions = sessions[hash.sessionId]
+    let userName
+    if(mySessions){
+      userName = mySessions.logIn_userName
+    }
     let foundUser
     for(let i = 0; i < users.length; i++){
       if(users[i].userName === userName){
@@ -79,7 +87,9 @@ var server = http.createServer(function(request, response){
         }
       }
       if(foundUser === true && foundPassword === true){
-        response.setHeader('Set-Cookie', `logIn_userName = ${userName}`)
+        let sessionId = Math.random() * 100000
+        sessions[sessionId] = {logIn_userName: userName}
+        response.setHeader('Set-Cookie', `sessionId = ${sessionId}`)
         response.statusCode = 200
       }else if(foundUser === false){
         response.setHeader('Content-Type', 'application/json;charset=utf-8')

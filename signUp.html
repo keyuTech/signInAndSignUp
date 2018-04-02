@@ -306,7 +306,6 @@
             $.post('/signIn', hash).then((response) => {
                 window.location.href = '/'
             }, (request) => {
-                console.log(request.responseJSON)
                 let {errors} = request.responseJSON
                 if(errors.userName && errors.userName === 'invalid'){
                     $form.find('[name="userName"]').siblings('.error').text('用户名不存在')
